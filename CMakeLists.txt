@@ -13,4 +13,10 @@ add_executable(chip8
     src/Keypad.cpp
 )
 
+add_executable(test_display
+    test/test_display.cpp
+    src/Display.cpp
+)
+
 target_link_libraries(chip8 PRIVATE SDL3::SDL3-shared)
+target_link_libraries(test_display PRIVATE SDL3::SDL3-shared)
