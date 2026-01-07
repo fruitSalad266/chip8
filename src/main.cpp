@@ -21,6 +21,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    chip8.loadROM(argv[1]);
+
     const auto IPS = 700; //instructs/sec
     const auto timerInterval = std::chrono::microseconds(1000000 / IPS);
 
@@ -34,6 +36,10 @@ int main(int argc, char* argv[]) {
 
         chip8.cycle();
 
+        if (chip8.drawFlag) {
+            display.render(chip8.display);
+            chip8.drawFlag = false;
+        }
         auto cycleEnd = std::chrono::high_resolution_clock::now();
         auto elapsed = cycleEnd - cycleStart;
         if (elapsed < timerInterval) {
