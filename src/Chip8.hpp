@@ -15,6 +15,7 @@ public:
     //Display buffer
     std::array<uint8_t, 64 * 32> display{};
     bool drawFlag = false;
+    bool legacyShift = false; //Legacy behavior not used by default
 
     std::array<uint8_t, 16> keypad{};
 

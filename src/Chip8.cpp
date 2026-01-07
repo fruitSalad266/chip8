@@ -15,6 +15,7 @@ Chip8::Chip8()
 //Chip8 expects programs to be loaded after address 0x200 (aka 512)
 void Chip8::loadROM(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
+    //binary | ate are setting the flags for READ AS BINARY and END OF FILE.
 
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file" + filename);
@@ -79,11 +80,59 @@ void Chip8::executeOpcode(uint16_t opcode) {
             ++SP;
             PC = nnn;
             break;
+        case 0x3000:
+            if (V[x] == nn) PC+=2;
+            break;
+        case 0x4000:
+            if (V[x] != nn) PC+=2;
+            break;
+        case 0x5000:
+            if (V[x] == V[y]) PC+=2;
+            break;
+        case 0x9000:
+            if (V[x] != V[y]) PC+=2;
+            break;
         case 0x6000: //set register VX
             V[x] = nn;
             break;
         case 0x7000: //Add val to register VX
             V[x] += nn;
+            break;
+        case 0x8000:
+            switch (n) {
+                case 0x0: V[x] = V[y]; break;
+                case 0x1: V[x] |= V[y]; break;
+                case 0x2: V[x] &= V[y]; break;
+                case 0x3: V[x] ^= V[y]; break;
+                case 0x4: {
+                    uint16_t sum = V[x] + V[y];
+                    V[0xF] = (sum > 255) ? 1 : 0;
+                    V[x] = sum & 0xFF; //modulo
+                    break;
+                }
+                case 0x5: {
+                    V[0xF] = (V[x] > V[y]) ? 1 : 0;
+                    V[x] -= V[y];
+                    break;
+                }
+                case 0x7: {
+                    V[0xF] = (V[y] > V[x]) ? 1 : 0;
+                    V[x] = V[y] - V[x];
+                    break;
+                }
+                case 0x6: { //shift right
+                    if (legacyShift) V[x] = V[y];
+                    V[0xF] = V[x] & 0x1; //check rightmost bit before shifting
+                    V[x] >>= 1;
+                    break;
+                }
+                case 0xE: {
+                    if (legacyShift) V[x] = V[y];
+                    V[0xF] = (V[x] >> 7) & 0x1; //same as above but check the leftmost bit
+                    V[x] <<= 1;
+                    break;
+                }
+            }
             break;
         case 0xA000: //set index register I
             I = nnn;
@@ -112,10 +161,34 @@ void Chip8::executeOpcode(uint16_t opcode) {
                     }
                 }
             }
-
             drawFlag = true;
             break;
         }
+        case 0xF000: {
+            switch (nn) {
+                case 0x33:
+                    memory[I] = V[x] / 100; //first digit
+                    memory[I + 1] = (V[x] / 10) % 10; //second digit
+                    memory[I + 2] = V[x] % 10; //third digit
+                    break;
+                case 0x55: {
+                    for (uint8_t i = 0; i <= x; ++i) {
+                        memory[I + i] = V[i];
+                    }
+                    if (legacyShift) I += x + 1; //Older behavior - change I.
+                    break;
+                }
+                case 0x65: {
+                    for (uint8_t i = 0; i <= x; ++i) {
+                        V[i] = memory[I + i];
+                    }
+                    if (legacyShift) I += x + 1; //same as above
+                    break;
+                }
+            }
+            break;
+        }
+
         default: std::cerr << "Unknown opcode: " << opcode << std::endl;
     }
 }
