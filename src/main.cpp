@@ -21,5 +21,25 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    const auto IPS = 700; //instructs/sec
+    const auto timerInterval = std::chrono::microseconds(1000000 / IPS);
+
+    while (!keypad.shouldQuit()) {
+        auto cycleStart = std::chrono::high_resolution_clock::now();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            keypad.processInput(event, chip8.keypad);
+        }
+
+        chip8.cycle();
+
+        auto cycleEnd = std::chrono::high_resolution_clock::now();
+        auto elapsed = cycleEnd - cycleStart;
+        if (elapsed < timerInterval) {
+            std::this_thread::sleep_for(timerInterval - elapsed);
+        }
+
+    }
     return 0;
 }
