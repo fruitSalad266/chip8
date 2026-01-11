@@ -18,7 +18,7 @@ void Chip8::loadROM(const std::string& filename) {
     //binary | ate are setting the flags for READ AS BINARY and END OF FILE.
 
     if (!file.is_open()) {
-        throw std::runtime_error("Could not open file" + filename);
+        throw std::runtime_error("Could not open file " + filename);
     }
 
     std::streamsize size = file.tellg();
@@ -52,7 +52,8 @@ void Chip8::updateTimers() {
 }
 
 void Chip8::executeOpcode(uint16_t opcode) {
-    uint16_t inst = opcode & 0xF000;
+    uint16_t inst = opcode & 0xF000; //instruction opcode, nonstandard
+
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
     uint8_t n = opcode & 0x000F;

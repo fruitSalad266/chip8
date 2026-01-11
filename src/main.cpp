@@ -7,14 +7,18 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: chip8 <ROM file>\n";
+    if (argc < 2) {
+        std::cerr << "Usage: chip8 <ROM file> [-legacy]\n";
         return 1;
     }
 
     Chip8 chip8;
     Display display;
     Keypad keypad;
+    
+    if (argc > 2 && std::string(argv[2]) == "-legacy") {
+        chip8.legacyShift = true;
+    }
 
     if (!display.init()) {
         std::cerr << "No Display Initialized :(\n";
