@@ -33,8 +33,17 @@ void Display::render(const std::array<uint8_t, CHIP8_WIDTH * CHIP8_HEIGHT>& disp
 
     for (int y = 0; y < CHIP8_HEIGHT; ++y) {
         for (int x = 0; x < CHIP8_WIDTH; ++x) {
-            if (displayBuffer[y * CHIP8_WIDTH + x]) { //y * width for row, x for column
+            int idx = y * CHIP8_WIDTH + x;
+
+            if (displayBuffer[idx]) {
+                brightness[idx] = 225;
+            } else if (brightness[idx] > 0) {
+                brightness[idx] = (brightness[idx] > DECAY_RATE) ? brightness[idx] - DECAY_RATE : 0;
+            }
+
+            if (brightness[idx] > 0) { //y * width for row, x for column
                 //0,0 starts at top left.
+                SDL_SetRenderDrawColor(renderer, brightness[idx], brightness[idx], brightness[idx], 255);
                 SDL_FRect rect = {
                     static_cast<float>(x * PIXEL_SIZE),
                     static_cast<float>(y * PIXEL_SIZE),
@@ -50,6 +59,8 @@ void Display::render(const std::array<uint8_t, CHIP8_WIDTH * CHIP8_HEIGHT>& disp
 }
 
 void Display::clear() {
+    brightness.fill(0);
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);

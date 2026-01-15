@@ -8,7 +8,7 @@ public:
     static constexpr int CHIP8_WIDTH = 64;
     static constexpr int CHIP8_HEIGHT = 32;
     static constexpr int PIXEL_SIZE = 10;
-    
+
     Display();
     ~Display();
 
@@ -19,4 +19,7 @@ public:
 private:
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+
+    std::array<uint8_t, CHIP8_WIDTH * CHIP8_HEIGHT> brightness;
+    static constexpr int DECAY_RATE = 50; //set this to 0 for flickering, simulates fade/in out of pixels
 };
