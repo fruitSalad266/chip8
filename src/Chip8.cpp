@@ -7,7 +7,7 @@
 Chip8::Chip8()
     : randGen(std::chrono::system_clock::now().time_since_epoch().count()),
     randByte(0,255)
-{ //copy fontset here
+{
     std::copy(fontset.begin(), fontset.end(), memory.begin() + 0x50);
 }
 
@@ -44,9 +44,7 @@ void Chip8::updateTimers() {
         --delayTimer;
     }
     if (soundTimer > 0) {
-        if (soundTimer == 1) {
-            //play beep sound
-        }
+        //play beep sound
         --soundTimer;
     }
 }
@@ -138,6 +136,9 @@ void Chip8::executeOpcode(uint16_t opcode) {
         case 0xA000: //set index register I
             I = nnn;
             break;
+        case 0xC000:
+            V[x] = randByte(randGen) & nn;
+            break;
         case 0xD000: {
             //display/draw
             uint8_t x_coord = V[x] & 63; // = % 64
@@ -186,10 +187,41 @@ void Chip8::executeOpcode(uint16_t opcode) {
                     if (legacyShift) I += x + 1; //same as above
                     break;
                 }
+                case 0x07: V[x] = delayTimer; break;
+                case 0x15: delayTimer = V[x]; break;
+                case 0x18: soundTimer = V[x]; break;
+                case 0x1E: I += V[x]; break;
+                case 0x0A: {
+                    bool keyPressed = false;
+                    for (uint8_t i = 0; i <= x; ++i) {
+                        if (keypad[i]) {
+                            V[x] = i;
+                            keyPressed = true;
+                            break;
+                        }
+                    }
+                    if (!keyPressed) PC -= 2;
+                    break;
+                }
+                case 0x29: I = 0x50 + (V[x] * 5); break;
+            }
+            break;
+        }
+        case 0xE000: {
+            switch (nn) {
+                case 0x9E: {
+                    if (keypad[V[x]]) PC += 2; //needs to skip next instruction?
+                    break;
+                }
+                case 0xA1: {
+                    if (!keypad[V[x]]) PC += 2;
+                    break;
+                }
             }
             break;
         }
 
-        default: std::cerr << "Unknown opcode: " << opcode << std::endl;
+        default: std::cerr << "Unknown opcode: " << std::hex
+            << std::setw(4)  << std::setfill('0') << std:: uppercase << opcode << std::endl;
     }
 }

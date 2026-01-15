@@ -28,7 +28,10 @@ int main(int argc, char* argv[]) {
     chip8.loadROM(argv[1]);
 
     const auto IPS = 700; //instructs/sec
-    const auto timerInterval = std::chrono::microseconds(1000000 / IPS);
+    const auto cycleInterval = std::chrono::microseconds(1000000 / IPS);
+    const auto timerInterval = std::chrono::microseconds(1000000 / 60);
+
+    auto lastTimerUpdate = std::chrono::high_resolution_clock::now();
 
     while (!keypad.shouldQuit()) {
         auto cycleStart = std::chrono::high_resolution_clock::now();
@@ -40,15 +43,21 @@ int main(int argc, char* argv[]) {
 
         chip8.cycle();
 
+        auto now = std::chrono::high_resolution_clock::now();
+        if (now - lastTimerUpdate >= timerInterval) {
+            chip8.updateTimers();
+            lastTimerUpdate = now;
+        }
+
         if (chip8.drawFlag) {
             display.render(chip8.display);
             chip8.drawFlag = false;
         }
+
         auto cycleEnd = std::chrono::high_resolution_clock::now();
         auto elapsed = cycleEnd - cycleStart;
-        if (elapsed < timerInterval) {
-            std::this_thread::sleep_for(timerInterval - elapsed);
-        }
+
+        if (elapsed < cycleInterval) std::this_thread::sleep_for(cycleInterval - elapsed);
 
     }
     return 0;
