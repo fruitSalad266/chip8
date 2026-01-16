@@ -15,9 +15,19 @@ public:
     //Display buffer
     std::array<uint8_t, 64 * 32> display{};
     bool drawFlag = false;
-    bool legacyShift = false; //Legacy behavior not used by default
+    bool legacyShift = false; //Non-legacy by default
 
     std::array<uint8_t, 16> keypad{};
+
+    //Getters for debugging
+    [[nodiscard]] uint16_t getPC() const {return PC;}
+    [[nodiscard]] uint16_t getI() const {return I;}
+    [[nodiscard]] uint8_t getSP() const {return SP;}
+    [[nodiscard]] uint8_t getDelayTimer() const {return delayTimer;}
+    [[nodiscard]] uint8_t getSoundTimer() const {return soundTimer;}
+    [[nodiscard]] const std::array<uint8_t, 16>& getV() const { return V; }
+    [[nodiscard]] const std::array<uint8_t, 4096>& getMemory() const { return memory;}
+    [[nodiscard]] const std::array<uint16_t, 16>& getStack() const { return stack;}
 
 private:
     //Memory 4kb aka 4096 bytes

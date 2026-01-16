@@ -1,6 +1,7 @@
 #include "Chip8.hpp"
 #include "Display.hpp"
 #include "Keypad.hpp"
+#include "Debugger.hpp"
 
 #include <chrono>
 #include <thread>
@@ -8,21 +9,34 @@
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: chip8 <ROM file> [-legacy]\n";
+        std::cerr << "Usage: chip8 <ROM file> [-legacy] [-debug]\n";
         return 1;
     }
 
     Chip8 chip8;
     Display display;
     Keypad keypad;
-    
-    if (argc > 2 && std::string(argv[2]) == "-legacy") {
-        chip8.legacyShift = true;
+    Debugger debugger;
+
+    bool debugMode = false;
+
+    for (int i = 2; i < argc; i++) {
+        if (std::string(argv[i]) == "-legacy") {
+            chip8.legacyShift = true;
+        }
+        if (std::string(argv[i]) == "-debug") {
+            debugMode = true;
+        }
     }
 
     if (!display.init()) {
         std::cerr << "No Display Initialized :(\n";
         return 1;
+    }
+
+    if (debugMode && !debugger.init()) {
+        std::cerr << "Debugger did not initialize :(, continuing. \n";
+        debugMode = false;
     }
 
     chip8.loadROM(argv[1]);
@@ -53,6 +67,8 @@ int main(int argc, char* argv[]) {
             display.render(chip8.display);
             chip8.drawFlag = false;
         }
+
+        if (debugMode) debugger.render(chip8);
 
         auto cycleEnd = std::chrono::high_resolution_clock::now();
         auto elapsed = cycleEnd - cycleStart;

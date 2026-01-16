@@ -4,10 +4,12 @@ This is an emulator (or more accurately, an *interpreter*) for the *interpreted*
 ## How to run
 Requires Cmake 3.20, and [SDL3](https://wiki.libsdl.org/SDL3/FrontPage).
 Legacy programs (~pre early-1990s) have different behavior. Run these with the ```-legacy``` flag.
-
+You can also enter debug mode with `-debug`. This will expose memory, variable registers, and the program itself.
 ### Testing
-Current versions: [IBM](https://github.com/loktar00/chip8/blob/master/roms/IBM%20Logo.ch8) and [opcode](https://github.com/corax89/chip8-test-rom) tests.
-You can run with ```./chip8 [file/path/rom.ch8]```
+Current versions: [IBM](https://github.com/loktar00/chip8/blob/master/roms/IBM%20Logo.ch8) and [opcode](https://github.com/corax89/chip8-test-rom) tests. All operations are supported, but these are the main ones I debugged on.
+You can run with ```./chip8 [file/path/rom.ch8]```.
+
+Alternatively, find various ROMS [here](https://github.com/kripod/chip8-roms).
 
 ## Development
 I followed this [tutorial](https://tobiasvl.github.io/blog/write-a-chip-8-emulator) for the spec. I thought it was very helpful because it's all conceptual and leaves you to figure out a lot on your own. I also used [@CoreDumped](https://www.youtube.com/@CoreDumpped) for a lot of the ground-up knowledge for how a computer works.
