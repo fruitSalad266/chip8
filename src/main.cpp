@@ -53,9 +53,10 @@ int main(int argc, char* argv[]) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             keypad.processInput(event, chip8.keypad);
+            debugger.processEvent(event);
         }
 
-        chip8.cycle();
+        if (!debugger.isPaused()) chip8.cycle();
 
         auto now = std::chrono::high_resolution_clock::now();
         if (now - lastTimerUpdate >= timerInterval) {

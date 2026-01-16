@@ -70,6 +70,24 @@ std::string Debugger::disassemble(uint16_t opcode) {
     return ss.str();
 }
 
+void Debugger::renderControlWindow() {
+    ImGui::SetNextWindowPos(ImVec2(5,305), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200,200), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Controls");
+
+    if (ImGui::Button(paused ? "Resume" : "Pause", ImVec2(80, 30))) {
+        paused = !paused;
+    }
+
+    ImGui::SameLine();
+    ImGui::Text(paused ? "Paused" : "Running");
+
+    ImGui::Text("Alternately, press space");
+
+    ImGui::End();
+}
+
 void Debugger::renderInstructionWindow(const Chip8 &chip8) {
     ImGui::SetNextWindowPos(ImVec2(5,5), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(200,300), ImGuiCond_FirstUseEver);
@@ -152,9 +170,12 @@ void Debugger::render(Chip8& chip8) {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
+    if (ImGui::IsKeyPressed(ImGuiKey_Space)) paused = !paused;
+    
     renderInstructionWindow(chip8);
     renderRegistersWindow(chip8);
     renderStackWindow(chip8);
+    renderControlWindow();
 
     ImGui::Render();
     SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
