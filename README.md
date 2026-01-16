@@ -4,7 +4,8 @@ This is an emulator (or more accurately, an *interpreter*) for the *interpreted*
 ## How to run
 Requires Cmake 3.20, and [SDL3](https://wiki.libsdl.org/SDL3/FrontPage).
 Legacy programs (~pre early-1990s) have different behavior. Run these with the ```-legacy``` flag.
-You can also enter debug mode with `-debug`. This will expose memory, variable registers, and the program itself.
+### Debugging
+Enter debug mode with `-debug`. This will expose memory, variable registers, and the program itself. You can pause at any point, then go forward step-by-step
 ### Testing
 Current versions: [IBM](https://github.com/loktar00/chip8/blob/master/roms/IBM%20Logo.ch8) and [opcode](https://github.com/corax89/chip8-test-rom) tests. All operations are supported, but these are the main ones I debugged on.
 You can run with ```./chip8 [file/path/rom.ch8]```.
