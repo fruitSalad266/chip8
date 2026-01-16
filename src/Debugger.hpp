@@ -17,12 +17,15 @@ public:
     void render(Chip8& chip8);
 
     bool isPaused() const { return paused; }
+    bool shouldStep() const { return stepRequested; }
+    void clearStep() { stepRequested = false; }
 
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
 
     bool paused = false;
+    bool stepRequested = false;
 
     std::string disassemble(uint16_t opcode);
     void renderInstructionWindow(const Chip8& chip8);

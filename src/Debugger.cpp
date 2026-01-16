@@ -72,18 +72,22 @@ std::string Debugger::disassemble(uint16_t opcode) {
 
 void Debugger::renderControlWindow() {
     ImGui::SetNextWindowPos(ImVec2(5,305), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200,200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Controls");
 
-    if (ImGui::Button(paused ? "Resume" : "Pause", ImVec2(80, 30))) {
+    if (ImGui::Button(paused ? "Resume" : "Pause", ImVec2(100, 25))) {
         paused = !paused;
     }
 
     ImGui::SameLine();
-    ImGui::Text(paused ? "Paused" : "Running");
 
-    ImGui::Text("Alternately, press space");
+    ImGui::BeginDisabled(!paused);
+    if (ImGui::Button("Step", ImVec2(70, 25))) stepRequested = true;
+    ImGui::EndDisabled();
+
+    ImGui::Text(paused ? "Paused" : "Running");
+    ImGui::Text("Space: Pause | N: Next step");
 
     ImGui::End();
 }
@@ -171,7 +175,8 @@ void Debugger::render(Chip8& chip8) {
     ImGui::NewFrame();
 
     if (ImGui::IsKeyPressed(ImGuiKey_Space)) paused = !paused;
-    
+    if (paused && ImGui::IsKeyPressed(ImGuiKey_N)) stepRequested = true;
+
     renderInstructionWindow(chip8);
     renderRegistersWindow(chip8);
     renderStackWindow(chip8);

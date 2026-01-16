@@ -56,7 +56,10 @@ int main(int argc, char* argv[]) {
             debugger.processEvent(event);
         }
 
-        if (!debugger.isPaused()) chip8.cycle();
+        if (!debugger.isPaused() || debugger.shouldStep()) {
+            chip8.cycle();
+            debugger.clearStep();
+        }
 
         auto now = std::chrono::high_resolution_clock::now();
         if (now - lastTimerUpdate >= timerInterval) {
