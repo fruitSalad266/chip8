@@ -19,7 +19,7 @@ Debugger::~Debugger() {
 bool Debugger::init() {
     window = SDL_CreateWindow(
         "MC8E debugger",
-        600, 400,
+        880, 430,
         SDL_WINDOW_RESIZABLE);
     if (!window) return false;
 
@@ -71,7 +71,7 @@ std::string Debugger::disassemble(uint16_t opcode) {
 }
 
 void Debugger::renderControlWindow() {
-    ImGui::SetNextWindowPos(ImVec2(5,305), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(5,310), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Controls");
@@ -110,11 +110,11 @@ void Debugger::renderInstructionWindow(const Chip8 &chip8) {
         bool isCurr = (addr == pc);
         if (isCurr) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-        ImGui::Text("Instruction %03X: %s", addr,  disassemble(opcode).c_str());
+        ImGui::Text("Inst %03X: %s", addr,  disassemble(opcode).c_str());
 
         if (isCurr) {
             ImGui::PopStyleColor();
-            ImGui::SetScrollHereY(0.8f);
+            ImGui::SetScrollHereY(1.0f);
         }
     }
     ImGui::End();
@@ -169,6 +169,42 @@ void Debugger:: renderStackWindow(const Chip8& chip8) {
     ImGui::End();
 }
 
+void Debugger::renderMemoryWindow(const Chip8& chip8) {
+    ImGui::SetNextWindowPos(ImVec2(435,5), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(420,300), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Memory Viewer");
+
+    static int viewAddr = 0x200;
+    ImGui::InputInt("Address", &viewAddr, 16, 265);
+    viewAddr = std::clamp(viewAddr, 0, 4095);
+
+    const auto& memory = chip8.getMemory();
+
+    ImGui::BeginChild("MemoryView", ImVec2(0, 0), true);
+    for (int row = 0; row < 16; row++) {
+        int addr = viewAddr + row * 16;
+        if (addr >= 4096) break;
+
+        ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "%03X:", addr);
+        ImGui::SameLine();
+
+        for (int col = 0; col < 16 && (addr + col) < 4096; col++) {
+            ImGui::SameLine();
+            uint8_t byte = memory[addr + col];
+
+            if (addr + col >= chip8.getI() && addr + col < chip8.getI() + 16) {
+                ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%02X", byte);
+            } else {
+                ImGui::Text("%02X", byte);
+            }
+        }
+    }
+
+    ImGui::EndChild();
+    ImGui::End();
+}
+
 void Debugger::render(Chip8& chip8) {
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
@@ -179,6 +215,7 @@ void Debugger::render(Chip8& chip8) {
 
     renderInstructionWindow(chip8);
     renderRegistersWindow(chip8);
+    renderMemoryWindow(chip8);
     renderStackWindow(chip8);
     renderControlWindow();
 

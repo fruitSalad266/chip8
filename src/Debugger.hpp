@@ -30,7 +30,7 @@ private:
     std::string disassemble(uint16_t opcode);
     void renderInstructionWindow(const Chip8& chip8);
     void renderRegistersWindow(const Chip8& chip8);
-    //void renderMemoryWindow(const Chip8& chip8);
+    void renderMemoryWindow(const Chip8& chip8);
     void renderStackWindow(const Chip8& chip8);
     void renderControlWindow();
 };
